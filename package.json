@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "cfonts": "^3.2.0",
+    "inquirer": "^8.2.4",
+    "mysql2": "^3.6.5"
+  }
+}
