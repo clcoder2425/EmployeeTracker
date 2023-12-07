@@ -303,3 +303,75 @@ function addEmployee() {
         );
     });
 }
+
+// Function to add a Manager
+function addManager() {
+    const queryDepartments = "SELECT * FROM departments";
+    const queryEmployees = "SELECT * FROM employee";
+
+    connection.query(queryDepartments, (err, resDepartments) => {
+        if (err) throw err;
+        connection.query(queryEmployees, (err, resEmployees) => {
+            if (err) throw err;
+            inquirer
+                .prompt([
+                    {
+                        type: "list",
+                        name: "department",
+                        message: "Select the department:",
+                        choices: resDepartments.map(
+                            (department) => department.department_name
+                        ),
+                    },
+                    {
+                        type: "list",
+                        name: "employee",
+                        message: "Select the employee to add a manager to:",
+                        choices: resEmployees.map(
+                            (employee) =>
+                                `${employee.FirstName} ${employee.LastName}`
+                        ),
+                    },
+                    {
+                        type: "list",
+                        name: "manager",
+                        message: "Select the employee's manager:",
+                        choices: resEmployees.map(
+                            (employee) =>
+                                `${employee.FirstName} ${employee.LastName}`
+                        ),
+                    },
+                ])
+                .then((answers) => {
+                    const department = resDepartments.find(
+                        (department) =>
+                            department.department_name === answers.department
+                    );
+                    const employee = resEmployees.find(
+                        (employee) =>
+                            `${employee.FirstName} ${employee.LastName}` ===
+                            answers.employee
+                    );
+                    const manager = resEmployees.find(
+                        (employee) =>
+                            `${employee.FirstName} ${employee.LastName}` ===
+                            answers.manager
+                    );
+                    const query =
+                        "UPDATE employee SET manager_id = ? WHERE id = ? AND role_id IN (SELECT id FROM roles WHERE department_id = ?)";
+                    connection.query(
+                        query,
+                        [manager.id, employee.id, department.id],
+                        (err, res) => {
+                            if (err) throw err;
+                            console.log(
+                                `Added manager ${manager.FirstName} ${manager.LastName} to employee ${employee.FirstName} ${employee.LastName} in department ${department.department_name}!`
+                            );
+                            // restart the application
+                            start();
+                        }
+                    );
+                });
+        });
+    });
+}
