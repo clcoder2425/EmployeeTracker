@@ -375,3 +375,121 @@ function addManager() {
         });
     });
 }
+// function to update an employee role
+function updateEmployeeRole() {
+    const queryEmployees =
+        "SELECT employee.id, employee.FirstName, employee.LastName, roles.title FROM employee LEFT JOIN roles ON employee.role_id = roles.id";
+    const queryRoles = "SELECT * FROM roles";
+    connection.query(queryEmployees, (err, resEmployees) => {
+        if (err) throw err;
+        connection.query(queryRoles, (err, resRoles) => {
+            if (err) throw err;
+            inquirer
+                .prompt([
+                    {
+                        type: "list",
+                        name: "employee",
+                        message: "Select the employee to update:",
+                        choices: resEmployees.map(
+                            (employee) =>
+                                `${employee.FirstName} ${employee.LastName}`
+                        ),
+                    },
+                    {
+                        type: "list",
+                        name: "role",
+                        message: "Select the new role:",
+                        choices: resRoles.map((role) => role.title),
+                    },
+                ])
+                .then((answers) => {
+                    const employee = resEmployees.find(
+                        (employee) =>
+                            `${employee.FirstName} ${employee.LastName}` ===
+                            answers.employee
+                    );
+                    const role = resRoles.find(
+                        (role) => role.title === answers.role
+                    );
+                    const query =
+                        "UPDATE employee SET role_id = ? WHERE id = ?";
+                    connection.query(
+                        query,
+                        [role.id, employee.id],
+                        (err, res) => {
+                            if (err) throw err;
+                            console.log(
+                                `Updated ${employee.FirstName} ${employee.LastName}'s role to ${role.title} in the database!`
+                            );
+                            // restart the application
+                            start();
+                        }
+                    );
+                });
+        });
+    });
+}
+// Function to View Employee By Manager
+function viewEmployeesByManager() {
+    const query = `
+      SELECT 
+        e.id, 
+        e.FirstName, 
+        e.LastName, 
+        r.title, 
+        d.department_name, 
+        CONCAT(m.FirstName, ' ', m.LastName) AS manager_name
+      FROM 
+        employee e
+        INNER JOIN roles r ON e.role_id = r.id
+        INNER JOIN departments d ON r.department_id = d.id
+        LEFT JOIN employee m ON e.manager_id = m.id
+      ORDER BY 
+        manager_name, 
+        e.LastName, 
+        e.FirstName
+    `;
+
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+
+        // group employees by manager
+        const employeesByManager = res.reduce((acc, cur) => {
+            const managerName = cur.manager_name;
+            if (acc[managerName]) {
+                acc[managerName].push(cur);
+            } else {
+                acc[managerName] = [cur];
+            }
+            return acc;
+        }, {});
+
+        // display employees by manager
+        console.log("Employees by manager:");
+        for (const managerName in employeesByManager) {
+            console.log(`\n${managerName}:`);
+            const employees = employeesByManager[managerName];
+            employees.forEach((employee) => {
+                console.log(
+                    `  ${employee.FirstName} ${employee.LastName} | ${employee.title} | ${employee.department_name}`
+                );
+            });
+        }
+
+        // restart the application
+        start();
+    });
+}
+// Function to view Employees by Department
+function viewEmployeesByDepartment() {
+    const query =
+        "SELECT departments.department_name, employee.FirstName, employee.LastName FROM employee INNER JOIN roles ON employee.role_id = roles.id INNER JOIN departments ON roles.department_id = departments.id ORDER BY departments.department_name ASC";
+
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.log("\nEmployees by department:");
+        console.table(res);
+        // restart the application
+        start();
+    });
+}
