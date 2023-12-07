@@ -9,6 +9,7 @@ I WANT to be able to view and manage the departments, roles, and employees in my
 SO THAT I can organize and plan my business
 
 #Acceptance Criteria
+```
 GIVEN a command-line application that accepts user input
 WHEN I start the application
 THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
@@ -31,6 +32,7 @@ WHEN I choose to view all employees by manager THEN I am presented with a list o
 WHEN I choose to view all employees by department THEN I am presented with a formatted table showing department name, employee name and lastme
 WHEN I choose to delete department, roles and employees THEN I am presented with the options: employee, role and department
 WHEN I choose to View the total utilized budget of a department—in other words, the combined salaries of all employees in that department then I am presented with a list of departments to choose from.
+```
 
 
 ## Table of Contents 
