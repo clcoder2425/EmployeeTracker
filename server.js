@@ -133,3 +133,19 @@ function viewAllRoles() {
         }
     });
 }
+// function to view all employees
+function viewAllEmployees() {
+    const query = `
+    SELECT e.id, e.FirstName, e.LastName, r.title, d.department_name, r.salary, CONCAT(m.FirstName, ' ', m.LastName) AS manager_name
+    FROM employee e
+    LEFT JOIN roles r ON e.role_id = r.id
+    LEFT JOIN departments d ON r.department_id = d.id
+    LEFT JOIN employee m ON e.manager_id = m.id;
+    `;
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        // restart the application
+        start();
+    });
+}
