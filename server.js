@@ -107,3 +107,29 @@ function start() {
             }
         });
 }
+// function to view all departments
+function viewAllDepartments() {
+    const query = "SELECT * FROM departments";
+    connection.query(query, (err, res) => {
+       try {
+        console.table(res);
+        // restart the application
+        start();
+       } catch (err) {
+        console.log(err);
+       }
+    });
+}
+// function to view all roles
+function viewAllRoles() {
+    const query = "SELECT roles.title, roles.id, departments.department_name, roles.salary from roles join departments on roles.department_id = departments.id";
+    connection.query(query, (err, res) => {
+        try {
+     console.table(res);
+        // restart the application
+        start(); 
+        } catch (err) {
+          console.log(err);  
+        }
+    });
+}
